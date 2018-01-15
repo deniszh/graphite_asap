@@ -1,9 +1,9 @@
 import six
 
-from graphite_api.evaluator import evaluateTokens
-from graphite_api.render.datalib import TimeSeries
-from graphite_api.render.attime import parseTimeOffset
-from graphite_api.utils import to_seconds
+from graphite.render.evaluator import evaluateTokens
+from graphite.render.datalib import TimeSeries
+from graphite.render.attime import parseTimeOffset
+from graphite.functions.params import Param, ParamTypes
 
 from datetime import timedelta
 
@@ -13,11 +13,8 @@ from .asap import smooth
 def ASAP(requestContext, seriesList, resolution=1000):
     '''
     use the ASAP smoothing on a series
-
     https://arxiv.org/pdf/1703.00983.pdf
     https://raw.githubusercontent.com/stanford-futuredata/ASAP/master/ASAP.py
-
-
     :param requestContext:
     :param seriesList:
     :param resolution: either number of points to keep or a time resolution
@@ -30,7 +27,7 @@ def ASAP(requestContext, seriesList, resolution=1000):
     windowInterval = None
     if isinstance(resolution, six.string_types):
         delta = parseTimeOffset(resolution)
-        windowInterval = to_seconds(delta)
+        windowInterval = abs(delta.seconds + (delta.days * 86400))
 
     if windowInterval:
         previewSeconds = windowInterval
@@ -89,6 +86,13 @@ def ASAP(requestContext, seriesList, resolution=1000):
     return result
 
 
-ASAPFunctions = {
-    'asap': ASAP
+# optionally set the group attribute
+ASAP.group = 'Custom'
+ASAP.params = [
+  Param('seriesList', ParamTypes.seriesList, required=True),
+  Param('resolution', ParamTypes.intOrInterval, required=False),
+]
+
+SeriesFunctions = {
+  'asap': ASAP,
 }
