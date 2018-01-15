@@ -1,10 +1,10 @@
 import pytz
 
-from graphite_api.render.datalib import TimeSeries
+from graphite.render.datalib import TimeSeries
 
 from datetime import datetime
 
-from graphite_asap.functions import ASAP
+from graphite.functions.custom.functions import ASAP
 
 try:
     import unittest2 as unittest
