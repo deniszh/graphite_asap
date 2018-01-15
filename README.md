@@ -1,22 +1,20 @@
 # Graphite-ASAP
 
-This is a graphite-api function for the ASAP dynamic smoothing algorithm
+This is a custom Graphite function for the ASAP dynamic smoothing algorithm
 
 https://arxiv.org/pdf/1703.00983.pdf
 
 http://github.com/stanford-futuredata/ASAP
 
-# NOTE: ABOUT GRAPHITE API
+Adapted from Graphite-api version https://github.com/wyndhblb/graphite_asap
 
-this requires the MAIN BRANCH of graphite-api, the current 1.1.3 version is not really up-to-date
-
-    pip install --upgrade git+https://github.com/brutasse/graphite-api
-    
+This requires Graphite-web version 1.1.1 or newer and installed [`numpy`](http://www.numpy.org/).
 
 # Install
 
-    pip install --upgrade git+https://github.com/wyndhblb/graphite_asap
+Copy `asap.py` and `functions.py` to `/opt/graphite/webapp/graphite/functions/custom` directory and restart Graphite-web. Check output of `http://<graphiteurl>/functions?pretty=1`, function `asap()` should be present.
 
+Check [Function Plugin documentation](https://graphite.readthedocs.io/en/latest/functions.html#function-plugins) for details.
 
 ## Note On Nulls
 
@@ -37,7 +35,7 @@ very sparse.
 What this means is that the "step" (or delta time between points) may not be an int, but a float.  Unfortunately, 
 graphite does not like floats for the steps size. 
 
-Graphite-api, when using the Graphing (not the json) output actually does ok with floats, the json writer does not,
+Graphite-web, when using the Graphing (not the json) output actually does ok with floats, the json writer does not,
 and so we must attempt to round the resulting step size.  
 As a result your graphs may look like there is the data does not transport all the way to the end of the graph due 
 to what appears to be a "timeshift" because the time step over the run of a few hundred points with out the
@@ -45,16 +43,13 @@ floating point precision will loose (or gain) too much time between steps.
 
 (There is probably an easy interpolation sort of fix for this, just have not implemented it yet)
 
+## TODO
 
-## usage
+No numpy version (probably will be too slow, but worth checking).
 
-In the `graphite-api.yaml` file install this package and then add to the functions list
+## Usage
 
-    functions:
-        - ... the other functions ...
-        - graphite_asap.functions.ASAPFunctions
-
-And in your favorite query engine
+Using your favorite query engine
     
     # attempt to get a vector with 10second steps
     http://xxx/render?target=asap(path.to.metric, '10s')
